@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Course Management System</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      header {
+        text-align: center;
+        color: white;
+        margin-bottom: 30px;
+      }
+
+      h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+      }
+
+      .subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+      }
+
+      /* Search Section */
+      .search-section {
+        position: relative;
+        margin-bottom: 30px;
+      }
+
+      .search-box {
+        width: 100%;
+        padding: 15px 20px;
+        font-size: 1rem;
+        border: none;
+        border-radius: 50px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        outline: none;
+      }
+
+      .search-box:focus {
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .autocomplete-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border-radius: 10px;
+        margin-top: 5px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        max-height: 300px;
+        overflow-y: auto;
+        display: none;
+        z-index: 1000;
+      }
+
+      .autocomplete-dropdown.show {
+        display: block;
+      }
+
+      .autocomplete-item {
+        padding: 12px 20px;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f0f0;
+      }
+
+      .autocomplete-item:last-child {
+        border-bottom: none;
+      }
+
+      .autocomplete-item:hover {
+        background: #f5f5f5;
+      }
+
+      .autocomplete-empty {
+        padding: 12px 20px;
+        color: #999;
+        text-align: center;
+      }
+
+      /* Course Grid */
+      .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+      }
+
+      .course-card {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+      }
+
+      .course-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      .course-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .course-rating {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #666;
+      }
+
+      .star {
+        color: #ffc107;
+      }
+
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        padding: 20px;
+        overflow-y: auto;
+      }
+
+      .modal.show {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 600px;
+        width: 100%;
+        position: relative;
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-size: 2rem;
+        color: #999;
+        cursor: pointer;
+        background: none;
+        border: none;
+        line-height: 1;
+      }
+
+      .modal-close:hover {
+        color: #333;
+      }
+
+      .modal-title {
+        font-size: 1.8rem;
+        color: #333;
+        margin-bottom: 15px;
+        padding-right: 30px;
+      }
+
+      .modal-rating {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 1.2rem;
+        margin-bottom: 30px;
+      }
+
+      .recommendations {
+        margin-top: 30px;
+      }
+
+      .recommendations h3 {
+        font-size: 1.3rem;
+        color: #333;
+        margin-bottom: 15px;
+      }
+
+      .recommendation-list {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .recommendation-item {
+        padding: 12px 15px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+
+      .recommendation-item:hover {
+        background: #e9ecef;
+      }
+
+      /* Loading */
+      .loading {
+        text-align: center;
+        color: white;
+        font-size: 1.2rem;
+        padding: 40px;
+      }
+
+      .error {
+        background: #ff6b6b;
+        color: white;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 20px;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        h1 {
+          font-size: 2rem;
+        }
+
+        .courses-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .modal-content {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🎓 Course Management System</h1>
+        <p class="subtitle">Data Structures & Algorithms Project</p>
+      </header>
+
+      <!-- Search Section -->
+      <div class="search-section">
+        <input
+          type="text"
+          class="search-box"
+          id="searchInput"
+          placeholder="Search courses... (e.g., Calculus)"
+        />
+        <div class="autocomplete-dropdown" id="autocompleteDropdown"></div>
+      </div>
+
+      <!-- Error Message -->
+      <div id="errorMessage" class="error" style="display: none"></div>
+
+      <!-- Loading -->
+      <div id="loading" class="loading" style="display: none">
+        Loading courses...
+      </div>
+
+      <!-- Courses Grid -->
+      <div class="courses-grid" id="coursesGrid"></div>
+
+      <!-- Modal for Course Details -->
+      <div class="modal" id="courseModal">
+        <div class="modal-content">
+          <button class="modal-close" id="modalClose">&times;</button>
+          <h2 class="modal-title" id="modalTitle"></h2>
+          <div class="modal-rating" id="modalRating"></div>
+
+          <div class="recommendations">
+            <h3>📚 Recommended Courses</h3>
+            <div class="recommendation-list" id="recommendationList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = "http://localhost:18080";
+      let allCourses = [];
+      let searchTimeout = null;
+
+      // DOM Elements
+      const searchInput = document.getElementById("searchInput");
+      const autocompleteDropdown = document.getElementById(
+        "autocompleteDropdown"
+      );
+      const coursesGrid = document.getElementById("coursesGrid");
+      const courseModal = document.getElementById("courseModal");
+      const modalClose = document.getElementById("modalClose");
+      const modalTitle = document.getElementById("modalTitle");
+      const modalRating = document.getElementById("modalRating");
+      const recommendationList = document.getElementById("recommendationList");
+      const loading = document.getElementById("loading");
+      const errorMessage = document.getElementById("errorMessage");
+
+      // Fetch all courses
+      async function fetchCourses() {
+        try {
+          loading.style.display = "block";
+          errorMessage.style.display = "none";
+
+          const response = await fetch(`${API_BASE}/courses`);
+          if (!response.ok) throw new Error("Failed to fetch courses");
+
+          allCourses = await response.json();
+          renderCourses(allCourses);
+
+          loading.style.display = "none";
+        } catch (error) {
+          console.error("Error fetching courses:", error);
+          showError(
+            "Cannot connect to backend. Make sure the server is running at http://localhost:18080"
+          );
+          loading.style.display = "none";
+        }
+      }
+
+      // Render courses grid
+      function renderCourses(courses) {
+        if (courses.length === 0) {
+          coursesGrid.innerHTML = '<div class="loading">No courses found</div>';
+          return;
+        }
+
+        coursesGrid.innerHTML = courses
+          .map(
+            (course) => `
+                <div class="course-card" onclick="showCourseDetail(${
+                  course.id
+                })">
+                    <div class="course-title">${escapeHtml(course.title)}</div>
+                    <div class="course-rating">
+                        <span class="star">⭐</span>
+                        <span>${course.rating.toFixed(1)}</span>
+                    </div>
+                </div>
+            `
+          )
+          .join("");
+      }
+
+      // Search with autocomplete
+      searchInput.addEventListener("input", function (e) {
+        const query = e.target.value.trim();
+
+        // Clear previous timeout
+        clearTimeout(searchTimeout);
+
+        if (query.length === 0) {
+          autocompleteDropdown.classList.remove("show");
+          renderCourses(allCourses);
+          return;
+        }
+
+        // Debounce search
+        searchTimeout = setTimeout(async () => {
+          try {
+            const response = await fetch(
+              `${API_BASE}/search?prefix=${encodeURIComponent(query)}`
+            );
+            if (!response.ok) throw new Error("Search failed");
+
+            const results = await response.json();
+            showAutocomplete(results);
+
+            // Filter displayed courses
+            const filteredCourses = allCourses.filter((course) =>
+              course.title.toLowerCase().includes(query.toLowerCase())
+            );
+            renderCourses(filteredCourses);
+          } catch (error) {
+            console.error("Search error:", error);
+            autocompleteDropdown.innerHTML =
+              '<div class="autocomplete-empty">Search error</div>';
+            autocompleteDropdown.classList.add("show");
+          }
+        }, 300);
+      });
+
+      // Show autocomplete dropdown
+      function showAutocomplete(results) {
+        if (results.length === 0) {
+          autocompleteDropdown.innerHTML =
+            '<div class="autocomplete-empty">No results found</div>';
+        } else {
+          autocompleteDropdown.innerHTML = results
+            .map(
+              (title) => `
+                    <div class="autocomplete-item" onclick="selectAutocomplete('${escapeHtml(
+                      title
+                    )}')">${escapeHtml(title)}</div>
+                `
+            )
+            .join("");
+        }
+        autocompleteDropdown.classList.add("show");
+      }
+
+      // Select autocomplete item
+      function selectAutocomplete(title) {
+        searchInput.value = title;
+        autocompleteDropdown.classList.remove("show");
+
+        const course = allCourses.find((c) => c.title === title);
+        if (course) {
+          renderCourses([course]);
+        }
+      }
+
+      // Hide autocomplete when clicking outside
+      document.addEventListener("click", function (e) {
+        if (
+          !searchInput.contains(e.target) &&
+          !autocompleteDropdown.contains(e.target)
+        ) {
+          autocompleteDropdown.classList.remove("show");
+        }
+      });
+
+      // Show course detail modal
+      async function showCourseDetail(courseId) {
+        const course = allCourses.find((c) => c.id === courseId);
+        if (!course) return;
+
+        modalTitle.textContent = course.title;
+        modalRating.innerHTML = `
+                <span class="star">⭐</span>
+                <span>${course.rating.toFixed(1)}</span>
+            `;
+
+        // Fetch recommendations
+        try {
+          recommendationList.innerHTML =
+            '<div class="loading">Loading recommendations...</div>';
+          courseModal.classList.add("show");
+
+          const response = await fetch(`${API_BASE}/recommend/${courseId}`);
+          if (!response.ok) throw new Error("Failed to fetch recommendations");
+
+          const recommendations = await response.json();
+
+          if (recommendations.length === 0) {
+            recommendationList.innerHTML =
+              '<div class="autocomplete-empty">No recommendations available</div>';
+          } else {
+            recommendationList.innerHTML = recommendations
+              .map((title) => {
+                const recCourse = allCourses.find((c) => c.title === title);
+                return `
+                            <div class="recommendation-item" onclick="showCourseDetail(${
+                              recCourse ? recCourse.id : 0
+                            })">
+                                ${escapeHtml(title)}
+                            </div>
+                        `;
+              })
+              .join("");
+          }
+        } catch (error) {
+          console.error("Error fetching recommendations:", error);
+          recommendationList.innerHTML =
+            '<div class="autocomplete-empty">Failed to load recommendations</div>';
+        }
+      }
+
+      // Close modal
+      modalClose.addEventListener("click", () => {
+        courseModal.classList.remove("show");
+      });
+
+      courseModal.addEventListener("click", (e) => {
+        if (e.target === courseModal) {
+          courseModal.classList.remove("show");
+        }
+      });
+
+      // Show error message
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = "block";
+      }
+
+      // Escape HTML to prevent XSS
+      function escapeHtml(text) {
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Initialize
+      fetchCourses();
+    </script>
+  </body>
+</html>

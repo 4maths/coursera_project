@@ -1,4 +1,5 @@
 #include "crow_all.h"
+#include "crow/middlewares/cors.h"
 #include <iostream>
 
 #include "../core/include/CourseStore.hpp"
@@ -10,28 +11,16 @@ CourseGraph graph;
 
 // ===== Init sample data =====
 void init_data() {
-    Course c1;
-    c1.id = 1;
-    c1.title = "Calculus I";
-    c1.rating = 4.8;
+    // Thêm Domain vào vị trí thứ 3, rating chuyển xuống vị trí thứ 4
+    // Đảm bảo dùng đúng enum class Domain từ models.hpp
+    Course c1{1, "Calculus I", Domain::Mathematics, 4.8f};
+    Course c2{2, "Linear Algebra", Domain::Mathematics, 4.7f};
+    Course c3{3, "Data Structures", Domain::DataStructures, 4.9f};
+    Course c4{4, "English Grammar", Domain::English, 4.5f};
+
     store.add_course(c1);
-
-    Course c2;
-    c2.id = 2;
-    c2.title = "Linear Algebra";
-    c2.rating = 4.7;
     store.add_course(c2);
-
-    Course c3;
-    c3.id = 3;
-    c3.title = "Data Structures";
-    c3.rating = 4.9;
     store.add_course(c3);
-
-    Course c4;
-    c4.id = 4;
-    c4.title = "English Grammar";
-    c4.rating = 4.5;
     store.add_course(c4);
 
     graph.add_related(1, 2);
@@ -39,9 +28,22 @@ void init_data() {
 }
 
 int main() {
+    // Gọi hàm khởi tạo dữ liệu
     init_data();
 
-    crow::SimpleApp app;
+    using App = crow::App<crow::CORSHandler>;
+    App app;
+
+    // ===== CORS CONFIG =====
+    // Cấu hình này rất quan trọng để Frontend (HTML) có thể gọi được API
+    auto& cors = app.get_middleware<crow::CORSHandler>();
+    cors
+        .global()
+        .headers("*")
+        .methods("GET"_method)
+        .origin("*");
+
+    app.loglevel(crow::LogLevel::Warning);
 
     // ===== GET /courses =====
     CROW_ROUTE(app, "/courses")([] {
@@ -51,18 +53,12 @@ int main() {
         Course* cur = store.first();
         if (!cur) return res;
 
-        res[i]["id"] = cur->id;
-        res[i]["title"] = cur->title;
-        res[i]["rating"] = cur->rating;
-        i++;
-
-        while (store.can_next()) {
-            cur = store.next();
+        do {
             res[i]["id"] = cur->id;
             res[i]["title"] = cur->title;
             res[i]["rating"] = cur->rating;
             i++;
-        }
+        } while (store.can_next() && (cur = store.next()));
 
         return res;
     });
@@ -81,7 +77,7 @@ int main() {
         return res;
     });
 
-    // ===== GET /recommend/1 =====
+    // ===== GET /recommend/<id> =====
     CROW_ROUTE(app, "/recommend/<int>")
     ([](int id){
         crow::json::wvalue res;
