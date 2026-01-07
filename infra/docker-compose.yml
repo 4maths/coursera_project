@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  course-app:
+    build:
+      # Dấu chấm này đại diện cho thư mục hiện tại khi chạy lệnh (gốc project)
+      # Hoặc dùng .. nếu muốn tính từ vị trí file yml
+      context: ..
+      dockerfile: infra/Dockerfile
+    container_name: coursera_server_container
+    ports:
+      - "18080:18080"
+    volumes:
+      # Ánh xạ từ thư mục web/uploads ở gốc project
+      - ../web/uploads:/app/uploads
+    restart: always
+
+    # Thiết lập biến môi trường (nếu cần)
+    environment:
+      - PORT=18080
+      - ENV=production
