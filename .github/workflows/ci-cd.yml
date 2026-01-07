@@ -22,7 +22,7 @@ jobs:
         uses: docker/login-action@v3
         with:
           username: 4maths
-          password: dckr_pat_4YJLuGqCqwoUMlEcBeG08v9phGg
+          password: ${{ dckr_pat_4YJLuGqCqwoUMlEcBeG08v9phGg }}
 
       # Bước 3: Thiết lập Docker Buildx (Công cụ build nâng cao)
       - name: Set up Docker Buildx
