@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Course Management System</title>
     <style>
+      /* --- GIỮ NGUYÊN TOÀN BỘ CSS CŨ --- */
       * {
         margin: 0;
         padding: 0;
@@ -39,7 +40,6 @@
         opacity: 0.9;
       }
 
-      /* Search Section */
       .search-section {
         position: relative;
         margin-bottom: 30px;
@@ -98,7 +98,6 @@
         text-align: center;
       }
 
-      /* Course Grid */
       .courses-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -138,7 +137,6 @@
         color: #ffc107;
       }
 
-      /* Modal */
       .modal {
         display: none;
         position: fixed;
@@ -228,7 +226,6 @@
         background: #e9ecef;
       }
 
-      /* Loading */
       .loading {
         text-align: center;
         color: white;
@@ -245,30 +242,328 @@
         margin-bottom: 20px;
       }
 
-      /* Responsive */
+      .video-container {
+        width: 100%;
+        background: #000;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        overflow: hidden;
+        aspect-ratio: 16 / 9;
+      }
+      video {
+        width: 100%;
+        height: 100%;
+      }
+
+      .upload-section {
+        background: rgba(255, 255, 255, 0.1);
+        padding: 20px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        color: white;
+        border: 2px dashed rgba(255, 255, 255, 0.3);
+        text-align: center;
+      }
+      .btn-upload {
+        background: #48bb78;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 10px;
+        font-weight: bold;
+      }
+      .btn-upload:hover {
+        background: #38a169;
+      }
+
+      /* --- USER PROFILE & SOCIAL --- */
+      .user-profile-bar {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 15px 25px;
+        border-radius: 15px;
+        color: white;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        backdrop-filter: blur(5px);
+      }
+
+      .social-container {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        width: 350px;
+        z-index: 3000;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .chat-box {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .chat-header {
+        background: #764ba2;
+        color: white;
+        padding: 12px;
+        font-weight: bold;
+      }
+
+      .chat-body-wrapper {
+        display: flex;
+        height: 300px;
+      }
+
+      .friend-list-sidebar {
+        width: 110px;
+        background: #f1f5f9;
+        border-right: 1px solid #e2e8f0;
+        overflow-y: auto;
+      }
+
+      .friend-tab {
+        padding: 10px 5px;
+        font-size: 0.8rem;
+        text-align: center;
+        cursor: pointer;
+        border-bottom: 1px solid #e2e8f0;
+        transition: 0.2s;
+        color: #475569;
+      }
+
+      .friend-tab:hover {
+        background: #e2e8f0;
+      }
+      .friend-tab.active {
+        background: white;
+        border-right: 3px solid #764ba2;
+        font-weight: bold;
+        color: #1e293b;
+      }
+
+      .chat-main-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 10px;
+        background: #f9f9f9;
+        font-size: 0.85rem;
+      }
+
+      .chat-input-area {
+        padding: 10px;
+        border-top: 1px solid #eee;
+        display: flex;
+        gap: 5px;
+      }
+
+      .chat-input-area input {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        outline: none;
+      }
+
+      .friend-recommendations {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 10px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+      }
+
+      .friend-item {
+        display: inline-block;
+        background: #cbd5e1;
+        padding: 2px 10px;
+        border-radius: 12px;
+        margin: 3px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: 0.2s;
+      }
+      .friend-item:hover {
+        background: #94a3b8;
+      }
+
+      /* AUTH MODAL SPECIFIC (NEW) */
+      .auth-input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+        outline: none;
+      }
+
       @media (max-width: 768px) {
         h1 {
           font-size: 2rem;
         }
-
         .courses-grid {
           grid-template-columns: 1fr;
         }
-
-        .modal-content {
-          padding: 20px;
+        .social-container {
+          display: none;
         }
       }
     </style>
   </head>
   <body>
+    <div
+      id="authModal"
+      class="modal show"
+      style="
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        z-index: 5000;
+      "
+    >
+      <div class="modal-content" style="max-width: 400px; text-align: center">
+        <h2 id="authTitle" style="margin-bottom: 20px; color: #333">
+          🔐 Đăng nhập hệ thống
+        </h2>
+        <div id="authForm">
+          <input
+            type="text"
+            id="regName"
+            placeholder="Tên hiển thị (chỉ dùng khi ĐK)"
+            class="auth-input"
+            style="display: none"
+          />
+          <input
+            type="text"
+            id="regUser"
+            placeholder="Username"
+            class="auth-input"
+          />
+          <input
+            type="password"
+            id="regPass"
+            placeholder="Password"
+            class="auth-input"
+          />
+
+          <button
+            onclick="handleAuth()"
+            id="authBtn"
+            class="btn-upload"
+            style="width: 100%; margin-top: 0"
+          >
+            Đăng nhập
+          </button>
+
+          <p
+            style="
+              margin-top: 20px;
+              font-size: 0.85rem;
+              cursor: pointer;
+              color: #764ba2;
+              font-weight: bold;
+            "
+            onclick="toggleAuthMode()"
+            id="toggleText"
+          >
+            Chưa có tài khoản? Đăng ký ngay
+          </p>
+        </div>
+      </div>
+    </div>
+
     <div class="container">
       <header>
         <h1>🎓 Course Management System</h1>
         <p class="subtitle">Data Structures & Algorithms Project</p>
       </header>
 
-      <!-- Search Section -->
+      <div class="user-profile-bar" id="userProfileBar">
+        <div>
+          👤 Chào, <strong id="currentUserName">Loading...</strong>
+          <span
+            style="
+              margin-left: 10px;
+              font-size: 0.85rem;
+              background: #48bb78;
+              padding: 3px 10px;
+              border-radius: 20px;
+            "
+          >
+            ID: <span id="currentUserID">...</span>
+          </span>
+        </div>
+        <div>
+          <input
+            type="number"
+            id="friendIdInput"
+            placeholder="Nhập ID kết bạn..."
+            style="
+              padding: 6px;
+              border-radius: 5px;
+              border: none;
+              outline: none;
+              width: 140px;
+            "
+          />
+          <button
+            onclick="addNewFriend()"
+            style="
+              background: #fff;
+              color: #764ba2;
+              border: none;
+              padding: 6px 15px;
+              border-radius: 5px;
+              cursor: pointer;
+              font-weight: bold;
+              margin-left: 5px;
+            "
+          >
+            Kết bạn
+          </button>
+          <button
+            onclick="logout()"
+            style="
+              background: #ff6b6b;
+              color: #fff;
+              border: none;
+              padding: 6px 10px;
+              border-radius: 5px;
+              cursor: pointer;
+              margin-left: 5px;
+            "
+          >
+            Thoát
+          </button>
+        </div>
+      </div>
+
+      <div class="upload-section">
+        <h3>📤 Upload Video Lesson (.mp4)</h3>
+        <input
+          type="file"
+          id="videoFile"
+          accept="video/mp4"
+          style="margin-top: 10px"
+        />
+        <br />
+        <button class="btn-upload" onclick="uploadVideo()">
+          Upload to C++ Server
+        </button>
+        <div id="uploadStatus" style="margin-top: 10px"></div>
+      </div>
+
       <div class="search-section">
         <input
           type="text"
@@ -279,27 +574,81 @@
         <div class="autocomplete-dropdown" id="autocompleteDropdown"></div>
       </div>
 
-      <!-- Error Message -->
       <div id="errorMessage" class="error" style="display: none"></div>
-
-      <!-- Loading -->
       <div id="loading" class="loading" style="display: none">
         Loading courses...
       </div>
-
-      <!-- Courses Grid -->
       <div class="courses-grid" id="coursesGrid"></div>
 
-      <!-- Modal for Course Details -->
       <div class="modal" id="courseModal">
         <div class="modal-content">
           <button class="modal-close" id="modalClose">&times;</button>
           <h2 class="modal-title" id="modalTitle"></h2>
           <div class="modal-rating" id="modalRating"></div>
 
+          <div
+            class="video-container"
+            id="videoContainer"
+            style="display: none"
+          >
+            <video id="mainVideo" controls>
+              <source src="" type="video/mp4" />
+              Your browser does not support the video tag.
+            </video>
+          </div>
+
           <div class="recommendations">
             <h3>📚 Recommended Courses</h3>
             <div class="recommendation-list" id="recommendationList"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="social-container">
+        <div class="friend-recommendations" id="friendPanel">
+          <strong>👥 Gợi ý bạn bè (BFS):</strong>
+          <div id="friendList" style="margin-top: 5px">Loading...</div>
+        </div>
+
+        <div class="chat-box">
+          <div class="chat-header">
+            <span>💬 Chat: <span id="chatWithTitle">Cộng đồng</span></span>
+          </div>
+
+          <div class="chat-body-wrapper">
+            <div class="friend-list-sidebar" id="friendSidebar">
+              <div
+                class="friend-tab active"
+                onclick="switchChat(0, 'Cộng đồng')"
+              >
+                Global
+              </div>
+            </div>
+
+            <div class="chat-main-content">
+              <div class="chat-messages" id="chatMessages">
+                <div style="color: #888; text-align: center; margin-top: 80px">
+                  Welcome to Chat!
+                </div>
+              </div>
+              <div class="chat-input-area">
+                <input type="text" id="chatInput" placeholder="Aa..." />
+                <button
+                  onclick="sendMessage()"
+                  style="
+                    background: #48bb78;
+                    color: white;
+                    border: none;
+                    padding: 5px 12px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-weight: bold;
+                  "
+                >
+                  Gửi
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -309,106 +658,162 @@
       const API_BASE = "http://localhost:18080";
       let allCourses = [];
       let searchTimeout = null;
+      let currentUser = null;
+      let activeChatTargetId = 0;
+      let isLoginMode = true;
 
-      // DOM Elements
-      const searchInput = document.getElementById("searchInput");
-      const autocompleteDropdown = document.getElementById(
-        "autocompleteDropdown"
-      );
-      const coursesGrid = document.getElementById("coursesGrid");
-      const courseModal = document.getElementById("courseModal");
-      const modalClose = document.getElementById("modalClose");
-      const modalTitle = document.getElementById("modalTitle");
-      const modalRating = document.getElementById("modalRating");
-      const recommendationList = document.getElementById("recommendationList");
-      const loading = document.getElementById("loading");
-      const errorMessage = document.getElementById("errorMessage");
+      // --- AUTH LOGIC (NEW) ---
+      function toggleAuthMode() {
+        isLoginMode = !isLoginMode;
+        document.getElementById("authTitle").textContent = isLoginMode
+          ? "🔐 Đăng nhập hệ thống"
+          : "📝 Đăng ký tài khoản";
+        document.getElementById("regName").style.display = isLoginMode
+          ? "none"
+          : "block";
+        document.getElementById("authBtn").textContent = isLoginMode
+          ? "Đăng nhập"
+          : "Đăng ký";
+        document.getElementById("toggleText").textContent = isLoginMode
+          ? "Chưa có tài khoản? Đăng ký ngay"
+          : "Đã có tài khoản? Đăng nhập";
+      }
 
-      // Fetch all courses
+      async function handleAuth() {
+        const username = document.getElementById("regUser").value;
+        const password = document.getElementById("regPass").value;
+        const name = document.getElementById("regName").value;
+        const endpoint = isLoginMode ? "/login" : "/register";
+
+        if (!username || !password || (!isLoginMode && !name)) {
+          alert("Vui lòng nhập đủ thông tin!");
+          return;
+        }
+
+        try {
+          const res = await fetch(`${API_BASE}${endpoint}`, {
+            method: "POST",
+            body: JSON.stringify({ username, password, name }),
+          });
+
+          if (res.ok) {
+            if (isLoginMode) {
+              currentUser = await res.json();
+              localStorage.setItem("user", JSON.stringify(currentUser));
+              document.getElementById("authModal").classList.remove("show");
+              document.getElementById("currentUserName").textContent =
+                currentUser.name;
+              document.getElementById("currentUserID").textContent =
+                currentUser.id;
+              initUserIdentity();
+            } else {
+              alert("Đăng ký thành công! Hãy đăng nhập.");
+              toggleAuthMode();
+            }
+          } else {
+            const errText = await res.text();
+            alert("Lỗi: " + errText);
+          }
+        } catch (e) {
+          alert("Không thể kết nối đến server C++!");
+        }
+      }
+
+      function logout() {
+        localStorage.removeItem("user");
+        location.reload();
+      }
+
+      // --- HÀM KHỞI TẠO USER ---
+      async function initUserIdentity() {
+        if (!currentUser) return;
+        fetchFriendRecs();
+        loadFriendList();
+      }
+
+      // GIỮ NGUYÊN HÀM UPLOAD
+      async function uploadVideo() {
+        const fileInput = document.getElementById("videoFile");
+        const status = document.getElementById("uploadStatus");
+        if (fileInput.files.length === 0) {
+          alert("Please select a file!");
+          return;
+        }
+        const formData = new FormData();
+        formData.append("videoFile", fileInput.files[0]);
+        try {
+          status.textContent = "⏳ Uploading...";
+          const response = await fetch(`${API_BASE}/upload_video`, {
+            method: "POST",
+            body: formData,
+          });
+          if (response.ok) {
+            status.style.color = "#48bb78";
+            status.textContent = "✅ Upload Success!";
+          } else {
+            throw new Error();
+          }
+        } catch (e) {
+          status.style.color = "#ff6b6b";
+          status.textContent = "❌ Upload Failed. Check C++ Server.";
+        }
+      }
+
       async function fetchCourses() {
         try {
           loading.style.display = "block";
-          errorMessage.style.display = "none";
-
           const response = await fetch(`${API_BASE}/courses`);
-          if (!response.ok) throw new Error("Failed to fetch courses");
-
           allCourses = await response.json();
           renderCourses(allCourses);
-
           loading.style.display = "none";
         } catch (error) {
-          console.error("Error fetching courses:", error);
-          showError(
-            "Cannot connect to backend. Make sure the server is running at http://localhost:18080"
-          );
+          showError("Cannot connect to backend.");
           loading.style.display = "none";
         }
       }
 
-      // Render courses grid
       function renderCourses(courses) {
         if (courses.length === 0) {
           coursesGrid.innerHTML = '<div class="loading">No courses found</div>';
           return;
         }
-
         coursesGrid.innerHTML = courses
           .map(
             (course) => `
-                <div class="course-card" onclick="showCourseDetail(${
-                  course.id
-                })">
-                    <div class="course-title">${escapeHtml(course.title)}</div>
-                    <div class="course-rating">
-                        <span class="star">⭐</span>
-                        <span>${course.rating.toFixed(1)}</span>
-                    </div>
-                </div>
-            `
+          <div class="course-card" onclick="showCourseDetail(${course.id})">
+            <div class="course-title">${escapeHtml(course.title)}</div>
+            <div class="course-rating"><span class="star">⭐</span><span>${course.rating.toFixed(
+              1
+            )}</span></div>
+          </div>
+        `
           )
           .join("");
       }
 
-      // Search with autocomplete
       searchInput.addEventListener("input", function (e) {
         const query = e.target.value.trim();
-
-        // Clear previous timeout
         clearTimeout(searchTimeout);
-
         if (query.length === 0) {
           autocompleteDropdown.classList.remove("show");
           renderCourses(allCourses);
           return;
         }
-
-        // Debounce search
         searchTimeout = setTimeout(async () => {
           try {
             const response = await fetch(
               `${API_BASE}/search?prefix=${encodeURIComponent(query)}`
             );
-            if (!response.ok) throw new Error("Search failed");
-
             const results = await response.json();
             showAutocomplete(results);
-
-            // Filter displayed courses
             const filteredCourses = allCourses.filter((course) =>
               course.title.toLowerCase().includes(query.toLowerCase())
             );
             renderCourses(filteredCourses);
-          } catch (error) {
-            console.error("Search error:", error);
-            autocompleteDropdown.innerHTML =
-              '<div class="autocomplete-empty">Search error</div>';
-            autocompleteDropdown.classList.add("show");
-          }
+          } catch (error) {}
         }, 300);
       });
 
-      // Show autocomplete dropdown
       function showAutocomplete(results) {
         if (results.length === 0) {
           autocompleteDropdown.innerHTML =
@@ -416,29 +821,23 @@
         } else {
           autocompleteDropdown.innerHTML = results
             .map(
-              (title) => `
-                    <div class="autocomplete-item" onclick="selectAutocomplete('${escapeHtml(
-                      title
-                    )}')">${escapeHtml(title)}</div>
-                `
+              (title) =>
+                `<div class="autocomplete-item" onclick="selectAutocomplete('${escapeHtml(
+                  title
+                )}')">${escapeHtml(title)}</div>`
             )
             .join("");
         }
         autocompleteDropdown.classList.add("show");
       }
 
-      // Select autocomplete item
       function selectAutocomplete(title) {
         searchInput.value = title;
         autocompleteDropdown.classList.remove("show");
-
         const course = allCourses.find((c) => c.title === title);
-        if (course) {
-          renderCourses([course]);
-        }
+        if (course) renderCourses([course]);
       }
 
-      // Hide autocomplete when clicking outside
       document.addEventListener("click", function (e) {
         if (
           !searchInput.contains(e.target) &&
@@ -448,78 +847,176 @@
         }
       });
 
-      // Show course detail modal
       async function showCourseDetail(courseId) {
         const course = allCourses.find((c) => c.id === courseId);
         if (!course) return;
-
         modalTitle.textContent = course.title;
-        modalRating.innerHTML = `
-                <span class="star">⭐</span>
-                <span>${course.rating.toFixed(1)}</span>
-            `;
-
-        // Fetch recommendations
+        modalRating.innerHTML = `<span class="star">⭐</span><span>${course.rating.toFixed(
+          1
+        )}</span>`;
+        const videoPlayer = document.getElementById("mainVideo");
+        const videoContainer = document.getElementById("videoContainer");
+        videoPlayer.src = `${API_BASE}/videos/${courseId}.mp4`;
+        videoContainer.style.display = "block";
+        videoPlayer.load();
         try {
           recommendationList.innerHTML =
-            '<div class="loading">Loading recommendations...</div>';
+            '<div class="loading">Loading...</div>';
           courseModal.classList.add("show");
-
           const response = await fetch(`${API_BASE}/recommend/${courseId}`);
-          if (!response.ok) throw new Error("Failed to fetch recommendations");
-
           const recommendations = await response.json();
-
           if (recommendations.length === 0) {
             recommendationList.innerHTML =
-              '<div class="autocomplete-empty">No recommendations available</div>';
+              '<div class="autocomplete-empty">No recommendations</div>';
           } else {
             recommendationList.innerHTML = recommendations
               .map((title) => {
                 const recCourse = allCourses.find((c) => c.title === title);
-                return `
-                            <div class="recommendation-item" onclick="showCourseDetail(${
-                              recCourse ? recCourse.id : 0
-                            })">
-                                ${escapeHtml(title)}
-                            </div>
-                        `;
+                return `<div class="recommendation-item" onclick="showCourseDetail(${
+                  recCourse ? recCourse.id : 0
+                })">${escapeHtml(title)}</div>`;
               })
               .join("");
           }
-        } catch (error) {
-          console.error("Error fetching recommendations:", error);
-          recommendationList.innerHTML =
-            '<div class="autocomplete-empty">Failed to load recommendations</div>';
-        }
+        } catch (error) {}
       }
 
-      // Close modal
       modalClose.addEventListener("click", () => {
+        document.getElementById("mainVideo").pause();
         courseModal.classList.remove("show");
       });
 
-      courseModal.addEventListener("click", (e) => {
-        if (e.target === courseModal) {
-          courseModal.classList.remove("show");
-        }
-      });
+      function switchChat(targetId, targetName) {
+        activeChatTargetId = targetId;
+        document.getElementById("chatWithTitle").textContent = targetName;
+        document.getElementById(
+          "chatMessages"
+        ).innerHTML = `<div style="color: #888; text-align: center;">Bắt đầu chat với ${targetName}</div>`;
+        document
+          .querySelectorAll(".friend-tab")
+          .forEach((el) => el.classList.remove("active"));
+        event.currentTarget.classList.add("active");
+      }
 
-      // Show error message
+      async function addNewFriend() {
+        const targetId = document.getElementById("friendIdInput").value;
+        if (!targetId || targetId == currentUser.id) return;
+        try {
+          const res = await fetch(`${API_BASE}/add_friend`, {
+            method: "POST",
+            body: JSON.stringify({
+              from: currentUser.id,
+              to: parseInt(targetId),
+            }),
+          });
+          if (res.ok) {
+            alert("Đã kết bạn thành công!");
+            loadFriendList();
+            fetchFriendRecs();
+          }
+        } catch (e) {
+          alert("Lỗi kết nối server!");
+        }
+      }
+
+      async function loadFriendList() {
+        try {
+          const res = await fetch(`${API_BASE}/get_friends/${currentUser.id}`);
+          const friends = await res.json();
+          const sidebar = document.getElementById("friendSidebar");
+          sidebar.innerHTML = `<div class="friend-tab active" onclick="switchChat(0, 'Cộng đồng')">Global</div>`;
+          friends.forEach((f) => {
+            sidebar.innerHTML += `<div class="friend-tab" onclick="switchChat(${f.id}, '${f.name}')">${f.name}</div>`;
+          });
+        } catch (e) {}
+      }
+
+      async function sendMessage() {
+        const input = document.getElementById("chatInput");
+        const message = input.value.trim();
+        if (!message) return;
+        try {
+          await fetch(`${API_BASE}/send_message`, {
+            method: "POST",
+            body: JSON.stringify({
+              from: currentUser.id,
+              to: activeChatTargetId,
+              content: message,
+            }),
+          });
+          input.value = "";
+          const display = document.getElementById("chatMessages");
+          display.innerHTML += `<div style="text-align:right; margin-bottom:5px;"><b>Me:</b> ${escapeHtml(
+            message
+          )}</div>`;
+          display.scrollTop = display.scrollHeight;
+        } catch (e) {}
+      }
+
+      setInterval(async () => {
+        if (!currentUser) return; // Đảm bảo đã đăng nhập
+        try {
+          // currentUser.id lúc này là 5
+          const response = await fetch(
+            `${API_BASE}/receive_message/${currentUser.id}`
+          );
+          const data = await response.json();
+
+          if (data && data.content) {
+            const display = document.getElementById("chatMessages");
+            display.innerHTML += `<div style="margin-bottom:5px;"><b>U${
+              data.from
+            }:</b> ${escapeHtml(data.content)}</div>`;
+            display.scrollTop = display.scrollHeight;
+          }
+        } catch (e) {}
+      }, 2000);
+
+      async function fetchFriendRecs() {
+        try {
+          const response = await fetch(
+            `${API_BASE}/recommend_friends/${currentUser.id}`
+          );
+          const friendIds = await response.json();
+          const list = document.getElementById("friendList");
+          if (friendIds.length > 0) {
+            list.innerHTML = friendIds
+              .map(
+                (id) =>
+                  `<span class="friend-item" onclick="document.getElementById('friendIdInput').value=${id}">${id}</span>`
+              )
+              .join("");
+          } else {
+            list.innerHTML = "No suggestions.";
+          }
+        } catch (e) {
+          document.getElementById("friendList").innerHTML = "Offline";
+        }
+      }
+
       function showError(message) {
         errorMessage.textContent = message;
         errorMessage.style.display = "block";
       }
-
-      // Escape HTML to prevent XSS
       function escapeHtml(text) {
         const div = document.createElement("div");
         div.textContent = text;
         return div.innerHTML;
       }
 
-      // Initialize
-      fetchCourses();
+      // Khởi tạo trang
+      window.onload = () => {
+        const savedUser = localStorage.getItem("user");
+        if (savedUser) {
+          currentUser = JSON.parse(savedUser);
+          document.getElementById("authModal").classList.remove("show");
+          document.getElementById("currentUserName").textContent =
+            currentUser.name;
+          document.getElementById("currentUserID").textContent = currentUser.id;
+          initUserIdentity();
+        }
+        fetchCourses();
+      };
     </script>
   </body>
 </html>
