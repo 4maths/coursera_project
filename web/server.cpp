@@ -3,7 +3,7 @@
 #include <iostream>
 #include <fstream> 
 #include <filesystem>
-#include <unordered_map> // Thêm để quản lý hòm thư riêng
+#include <unordered_map>
 
 #include "../core/include/CourseStore.hpp"
 #include "../core/include/CourseGraph.hpp"
@@ -17,15 +17,10 @@ CourseStore store;
 CourseGraph graph;
 UserGraph user_graph;
 
-// THAY ĐỔI CHÍNH: Mỗi User sẽ có một MessageQueue riêng (Mailbox)
-// key: userId, value: MessageQueue chứa tin nhắn gửi đến User đó
 std::unordered_map<int, MessageQueue> user_mailboxes;
-
-// Quản lý User
 HashTable<std::string, User*> userByName(101); 
 int nextUserId = 5; 
 
-// ===== Init sample data =====
 void init_data() {
     Course c1{1, "Calculus I", Domain::Mathematics, 4.8f};
     Course c2{2, "Linear Algebra", Domain::Mathematics, 4.7f};
@@ -60,7 +55,28 @@ int main() {
 
     app.loglevel(crow::LogLevel::Warning);
 
-    // ===== ROUTE 1: UPLOAD VIDEO =====
+    // ============================================================
+    // THAY ĐỔI TẠI ĐÂY: XỬ LÝ FILE GIAO DIỆN (STATIC FILES)
+    // ============================================================
+
+    // 1. Route cho trang chủ (http://ip:18080/)
+    CROW_ROUTE(app, "/")
+    ([](const crow::request& req, crow::response& res) {
+        res.set_static_file_info("web/static/index.html");
+        res.end();
+    });
+
+    // 2. Route tự động cho CSS, JS, Images (ví dụ: web/style.css)
+    CROW_ROUTE(app, "/static/<string>")
+    ([](const crow::request& req, crow::response& res, std::string filename) {
+        res.set_static_file_info("web/static/" + filename);
+        res.end();
+    });
+    
+    // ============================================================
+    // CÁC ROUTE API CŨ CỦA ÔNG (GIỮ NGUYÊN)
+    // ============================================================
+
     CROW_ROUTE(app, "/upload_video").methods("POST"_method)
     ([](const crow::request& req) {
         crow::multipart::message msg(req);
@@ -87,7 +103,6 @@ int main() {
         }
     });
 
-    // ===== ROUTE 2: XEM VIDEO =====
     CROW_ROUTE(app, "/videos/<string>")
     ([](std::string filename) {
         std::string path = "uploads/" + filename;
@@ -99,7 +114,6 @@ int main() {
         return res;
     });
 
-    // ===== GET /courses =====
     CROW_ROUTE(app, "/courses")([] {
         crow::json::wvalue res;
         int i = 0;
@@ -114,7 +128,6 @@ int main() {
         return res;
     });
 
-    // ===== GET /course/<int> =====
     CROW_ROUTE(app, "/course/<int>")
     ([](int id){
         crow::json::wvalue res;
@@ -139,7 +152,6 @@ int main() {
         return crow::response(res);
     });
 
-    // ===== SEARCH =====
     CROW_ROUTE(app, "/search")
     ([](const crow::request& req){
         crow::json::wvalue res;
@@ -152,7 +164,6 @@ int main() {
         return res;
     });
 
-    // ===== RECOMMEND COURSES =====
     CROW_ROUTE(app, "/recommend/<int>")
     ([](int id){
         crow::json::wvalue res;
@@ -164,7 +175,6 @@ int main() {
         return res;
     });
 
-    // ===== RECOMMEND FRIENDS =====
     CROW_ROUTE(app, "/recommend_friends/<int>")
     ([&](int userId){
         crow::json::wvalue res;
@@ -175,25 +185,20 @@ int main() {
         return res;
     });
 
-    // ===== GỬI TIN NHẮN (SỬA LẠI ĐỂ GỬI VÀO HÒM THƯ RIÊNG) =====
     CROW_ROUTE(app, "/send_message").methods("POST"_method)
     ([&](const crow::request& req){
         auto data = crow::json::load(req.body);
         if (!data) return crow::response(400);
         
         int to = data["to"].i();
-        // Đưa tin nhắn vào mailbox của người nhận (to)
         user_mailboxes[to].send(data["from"].i(), to, data["content"].s());
         
         return crow::response(200, "Sent");
     });
 
-    // ===== NHẬN TIN NHẮN (SỬA LẠI ĐỂ LẤY TỪ HÒM THƯ CỦA MÌNH) =====
     CROW_ROUTE(app, "/receive_message/<int>")
     ([&](int myId){
         crow::json::wvalue res;
-        
-        // Kiểm tra hòm thư của chính myId
         if (user_mailboxes.count(myId) && !user_mailboxes[myId].empty()) {
             Message m = user_mailboxes[myId].receive();
             res["from"] = m.from;
@@ -203,7 +208,6 @@ int main() {
         return res;
     });
 
-    // ===== USER INFO =====
     CROW_ROUTE(app, "/user_info/<int>")
     ([&](int id){
         crow::json::wvalue res;
@@ -212,7 +216,6 @@ int main() {
         return res;
     });
 
-    // ===== ADD FRIEND =====
     CROW_ROUTE(app, "/add_friend").methods("POST"_method)
     ([&](const crow::request& req){
         auto data = crow::json::load(req.body);
@@ -220,7 +223,6 @@ int main() {
         return crow::response(200, "Friend added");
     });
 
-    // ===== GET FRIENDS =====
     CROW_ROUTE(app, "/get_friends/<int>")
     ([&](int userId){
         crow::json::wvalue res;
@@ -232,7 +234,6 @@ int main() {
         return res;
     });
 
-    // ===== REGISTER =====
     CROW_ROUTE(app, "/register").methods("POST"_method)
     ([&](const crow::request& req){
         auto data = crow::json::load(req.body);
@@ -254,7 +255,6 @@ int main() {
         return crow::response(200, "Success");
     });
 
-    // ===== LOGIN =====
     CROW_ROUTE(app, "/login").methods("POST"_method)
     ([&](const crow::request& req){
         auto data = crow::json::load(req.body);
@@ -272,6 +272,6 @@ int main() {
         return crow::response(res);
     });
 
-    std::cout << "Server running at http://localhost:18080\n";
+    std::cout << "Server running at http://0.0.0.0:18080\n";
     app.port(18080).multithreaded().run();
 }

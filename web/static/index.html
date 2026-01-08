@@ -655,7 +655,9 @@
     </div>
 
     <script>
-      const API_BASE = "http://localhost:18080";
+      // SỬA TẠI ĐÂY: Đổi sang IP server Amazon để kết nối API từ xa
+      const API_BASE = "http://52.23.235.91:18080";
+
       let allCourses = [];
       let searchTimeout = null;
       let currentUser = null;
@@ -956,7 +958,6 @@
       setInterval(async () => {
         if (!currentUser) return; // Đảm bảo đã đăng nhập
         try {
-          // currentUser.id lúc này là 5
           const response = await fetch(
             `${API_BASE}/receive_message/${currentUser.id}`
           );
@@ -1020,3 +1021,4 @@
     </script>
   </body>
 </html>
+eb
