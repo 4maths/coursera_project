@@ -28,9 +28,8 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           IMAGE_TAG: latest
         run: |
-          # Build Docker image từ Dockerfile trong repo
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          # Push image lên kho ECR
+          # Thêm -f infra/Dockerfile để chỉ đường dẫn cho GitHub
+          docker build -f infra/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
       - name: Deploy to EC2 via SSH
