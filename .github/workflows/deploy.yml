@@ -2,7 +2,7 @@ name: Deploy to EC2
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main"] # Hoặc "master" nếu repo của ông dùng master
 
 jobs:
   build-and-deploy:
@@ -28,9 +28,7 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           IMAGE_TAG: latest
         run: |
-          # Kiểm tra sự tồn tại của thư viện asio trước khi build
-          ls -d web/asio/include || echo "THIEU THU VIEN ASIO"
-          # Build từ gốc (.) dùng Dockerfile trong infra
+          # Build từ gốc dự án nhưng dùng file Dockerfile trong thư mục infra
           docker build -f infra/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
@@ -41,9 +39,13 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # Login ECR trên máy ảo
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
+            # Làm sạch container cũ
             docker stop 4maths-app || true
             docker rm 4maths-app || true
+            # Kéo bản mới và chạy
             docker pull ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
             docker run -d --name 4maths-app -p 18080:18080 ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
+            # Dọn dẹp rác image cũ để tránh đầy ổ cứng
             docker image prune -f
