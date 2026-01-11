@@ -2,7 +2,7 @@ name: Deploy to EC2
 
 on:
   push:
-    branches: ["main"] # Tự động chạy khi push code vào nhánh main
+    branches: ["main"]
 
 jobs:
   build-and-deploy:
@@ -28,7 +28,7 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           IMAGE_TAG: latest
         run: |
-          # Thêm -f infra/Dockerfile để chỉ đường dẫn cho GitHub
+          # SỬA QUAN TRỌNG: Thêm -f infra/Dockerfile để GitHub biết chỗ tìm file
           docker build -f infra/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
@@ -39,15 +39,9 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # 1. Đăng nhập vào ECR ngay trên máy EC2
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
-
-            # 2. Dừng và xóa container cũ mang tên 4maths-app
             docker stop 4maths-app || true
             docker rm 4maths-app || true
-
-            # 3. Kéo image mới nhất vừa build về máy EC2
             docker pull ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
-
-            # 4. Chạy container mới với tên 4maths-app và cổng 18080
             docker run -d --name 4maths-app -p 18080:18080 ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
+            docker image prune -f
