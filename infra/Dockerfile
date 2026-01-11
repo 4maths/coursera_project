@@ -15,14 +15,15 @@ WORKDIR /app
 COPY . .
 
 # Biên dịch ứng dụng
+# Biên dịch ứng dụng với đường dẫn include chính xác
 RUN g++ web/server.cpp \
     -I. \
-    -Icore/include \
-    -Iweb/asio/include \
-    -Iweb/crow \
+    -I./core/include \
+    -I./web/asio/include \
+    -I./web/crow \
     -O2 -Wall \
-    -lpthread -lboost_system \
-    -o server_app
+    -o server_app \
+    -lpthread -lboost_system
 
 # Stage 2: Runtime - Siêu gọn nhẹ để đẩy lên ECR cho nhanh
 FROM ubuntu:22.04
