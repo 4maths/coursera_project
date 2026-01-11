@@ -28,7 +28,9 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           IMAGE_TAG: latest
         run: |
-          # SỬA QUAN TRỌNG: Thêm -f infra/Dockerfile để GitHub biết chỗ tìm file
+          # Kiểm tra cấu trúc thư mục trước khi build để đảm bảo file tồn tại
+          ls -R
+          # Build từ thư mục gốc (.) nhưng sử dụng Dockerfile trong infra
           docker build -f infra/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
