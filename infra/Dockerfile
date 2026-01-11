@@ -1,7 +1,8 @@
-# Stage 1: Build - Dùng Ubuntu 22.04 để đồng bộ hoàn toàn với Stage 2
+# =========================
+# Stage 1: Build
+# =========================
 FROM ubuntu:22.04 AS builder
 
-# Tránh các thông báo tương tác làm gián đoạn quá trình build trên AWS
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
@@ -9,24 +10,33 @@ RUN apt-get update && apt-get install -y \
     cmake \
     libboost-system-dev \
     libboost-thread-dev \
+    libasio-dev \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
+
+# ⚠️ QUAN TRỌNG: copy toàn bộ source (bao gồm web/crow, web/asio, core)
 COPY . .
 
-# Biên dịch ứng dụng
-# Biên dịch ứng dụng với đường dẫn include chính xác
+# ⚠️ QUAN TRỌNG: compile với include path KHỚP 100% repo
 RUN g++ web/server.cpp \
     -I. \
-    -I./core/include \
-    -I./web/asio/include \
-    -I./web/crow \
+    -Icore/include \
+    -Iweb \
+    -Iweb/asio/include \
+    -Iweb/crow \
     -O2 -Wall \
-    -o server_app \
-    -lpthread -lboost_system
+    -lpthread -lboost_system -lboost_thread \
+    -o server_app
 
-# Stage 2: Runtime - Siêu gọn nhẹ để đẩy lên ECR cho nhanh
+
+# =========================
+# Stage 2: Runtime
+# =========================
 FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
     libboost-system1.74.0 \
@@ -36,11 +46,9 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-# Chỉ copy file thực thi và thư mục web cần thiết
 COPY --from=builder /app/server_app .
 COPY --from=builder /app/web ./web
 
-# Tạo folder uploads và cấp quyền cho AWS
 RUN mkdir -p uploads && chmod 777 uploads
 
 EXPOSE 18080
