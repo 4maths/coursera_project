@@ -1,8 +1,8 @@
-name: Deploy to EC2
+name: Deploy to EC2 with Monitoring
 
 on:
   push:
-    branches: ["main"] # Hoặc "master" nếu repo của ông dùng master
+    branches: ["main"]
 
 jobs:
   build-and-deploy:
@@ -28,10 +28,19 @@ jobs:
           ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY }}
           IMAGE_TAG: latest
         run: |
-          # Build từ gốc dự án nhưng dùng file Dockerfile trong thư mục infra
           docker build --no-cache -f infra/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+      # BƯỚC MỚI: Tự động copy file cấu hình sang EC2
+      - name: Copy config files to EC2
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          # Copy file docker-compose và toàn bộ thư mục monitoring
+          source: "docker-compose.yml,monitoring/"
+          target: "/home/ubuntu/coursera_lite"
 
       - name: Deploy to EC2 via SSH
         uses: appleboy/ssh-action@master
@@ -40,13 +49,17 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Login ECR trên máy ảo
+            cd /home/ubuntu/coursera_lite
+
+            # Login ECR
             aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
-            # Làm sạch container cũ
-            docker stop 4maths-app || true
-            docker rm 4maths-app || true
-            # Kéo bản mới và chạy
-            docker pull ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
-            docker run -d --name 4maths-app -p 18080:18080 ${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
-            # Dọn dẹp rác image cũ để tránh đầy ổ cứng
+
+            # Truyền URI của image vào biến môi trường để Docker Compose sử dụng
+            export ECR_IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/${{ secrets.ECR_REPOSITORY }}:latest
+
+            # Khởi động toàn bộ hệ thống
+            docker-compose pull
+            docker-compose up -d --remove-orphans
+
+            # Dọn dẹp rác image cũ
             docker image prune -f

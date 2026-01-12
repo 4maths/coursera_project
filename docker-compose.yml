@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  # Ứng dụng của ông
+  4maths-app:
+    image: ${ECR_IMAGE_URI} # GitHub Actions sẽ điền cái này vào
+    container_name: 4maths-app
+    ports:
+      - "18080:18080"
+    restart: always
+
+  # Prometheus: Thu thập dữ liệu
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  # Node Exporter: Đọc thông số phần cứng (CPU, RAM, Disk)
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    ports:
+      - "9100:9100"
+
+  # Grafana: Vẽ biểu đồ đẹp mắt
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - prometheus
