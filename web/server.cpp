@@ -271,6 +271,24 @@
             res["name"] = u->name;
             return crow::response(res);
         });
+        // 1. Khai báo biến đếm toàn cục
+int total_requests = 0;
+
+// 2. Tạo route /metrics cho Prometheus quét dữ liệu
+CROW_ROUTE(app, "/metrics")
+([]{
+    std::string response = "# HELP http_requests_total Total number of HTTP requests\n";
+    response += "# TYPE http_requests_total counter\n";
+    response += "http_requests_total " + std::to_string(total_requests) + "\n";
+    return response;
+});
+
+// 3. Tăng biến đếm trong các route hiện tại
+CROW_ROUTE(app, "/")
+([&]{
+    total_requests++; // Mỗi lần có người vào trang chủ thì tăng 1
+    return "Welcome to 4maths!";
+});
 
         std::cout << "Server running at http://0.0.0.0:18080\n";
         // Thêm .bindaddr("0.0.0.0") để cho phép kết nối từ bên ngoài container
