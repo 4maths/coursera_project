@@ -2,7 +2,8 @@
 
 _(Cloud, DevOps & Systems Engineering Project)_
 
-![System Overview](docs/images/system-overview.png)
+![System Overview](./docs/images/system-overview.png)
+
 
 A cloud-native **online learning platform** designed and implemented with a strong focus on **systems architecture, containerization, CI/CD automation, cloud deployment, and observability**.
 
