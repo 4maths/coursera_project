@@ -274,14 +274,12 @@
         // 1. Khai báo biến đếm toàn cục
 int total_requests = 0;
 
-// 2. Tạo route /metrics cho Prometheus quét dữ liệu
-CROW_ROUTE(app, "/metrics")
-([]{
-    std::string response = "# HELP http_requests_total Total number of HTTP requests\n";
-    response += "# TYPE http_requests_total counter\n";
+CROW_ROUTE(app, "/metrics")([&total_requests] {
+    std::string response;
     response += "http_requests_total " + std::to_string(total_requests) + "\n";
     return response;
 });
+
 
 // 3. Tăng biến đếm trong các route hiện tại
 CROW_ROUTE(app, "/")
