@@ -4,7 +4,6 @@ _(Cloud, DevOps & Systems Engineering Project)_
 
 ![System Overview](./docs/images/system-overview.png)
 
-
 A cloud-native **online learning platform** designed and implemented with a strong focus on **systems architecture, containerization, CI/CD automation, cloud deployment, and observability**.
 
 ---
@@ -15,8 +14,6 @@ This project is an **E-learning web platform** that allows users to browse cours
 
 The system is built as a **containerized backend written in C++**, deployed on AWS using modern DevOps practices.  
 It integrates **secure object storage, automated deployment pipelines, and monitoring with alerting**.
-
-The primary goal of this project is to demonstrate **end-to-end Cloud & DevOps skills**, not just application development.
 
 ---
 
