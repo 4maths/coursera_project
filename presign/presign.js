@@ -41,7 +41,8 @@ app.post("/videos/presign", async (req, res) => {
 
     const upload_url = await getSignedUrl(s3, cmd, { expiresIn: 900 });
 
-    const public_url = `https://${BUCKET}.s3.${REGION}.amazonaws.com/${object_key}`;
+    // Sửa trong presign.js
+    const public_url = `http://${BUCKET}.s3.${REGION}.amazonaws.com/${object_key}`;
 
     res.json({ upload_url, object_key, public_url });
   } catch (e) {

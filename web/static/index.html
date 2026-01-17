@@ -471,7 +471,7 @@
       const PRESIGN_BASE = "http://52.23.235.91:3001";
 
       const API_BASE = "http://52.23.235.91:18080";
-      const S3_BASE = "https://4maths-coursera-media.s3.amazonaws.com";
+      const S3_BASE = "http://4maths-coursera-media.s3.amazonaws.com";
 
       let allCourses = [];
       let currentUser = null;
@@ -706,6 +706,7 @@
           // 2️⃣ PUT thẳng lên S3
           const putRes = await fetch(pres.upload_url, {
             method: "PUT",
+            mode: "cors",
             headers: { "Content-Type": file.type || "video/mp4" },
             body: file,
           });
